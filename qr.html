@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#fff4d8">
+    <meta name="description" content="Generá un QR de un link o de un archivo que se borra solo.">
+    <title>QR · utils</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%237dffe8' stroke='%23241c16' stroke-width='4'/%3E%3Ctext x='32' y='42' text-anchor='middle' font-family='Arial Black,sans-serif' font-size='22' fill='%23241c16'%3EQR%3C/text%3E%3C/svg%3E">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <div class="page">
+      <a class="back" href="./index.html"><span aria-hidden="true">←</span> utils</a>
+
+      <header class="tool-head">
+        <p class="tape tape-small">fibrón verde</p>
+        <h1>QR</h1>
+        <p class="lede">Pegá un link o subí un archivo. El QR se arma en este aparato.</p>
+      </header>
+
+      <section class="panel">
+        <label class="field-top" for="link">Link</label>
+        <input id="link" class="text-input" type="url" inputmode="url" autocomplete="off" placeholder="https://">
+        <div class="actions">
+          <button type="button" id="generar-link" class="btn btn-primary">Generar QR</button>
+        </div>
+      </section>
+
+      <p class="ask">¿Querés generar este QR para un archivo y no tenés link? Subí el archivo acá.</p>
+
+      <label class="drop" id="dropzone">
+        <input id="file" class="drop-input" type="file">
+        <span class="drop-copy">
+          <span class="drop-badge" aria-hidden="true">FILE</span>
+          <span class="drop-title" id="drop-title">Arrastrá un archivo</span>
+          <span class="drop-help" id="drop-help">o tocá para elegirlo</span>
+        </span>
+      </label>
+
+      <section class="panel" id="dias-panel" hidden>
+        <p class="file-meta" id="file-meta"></p>
+        <div class="field">
+          <div class="field-top">
+            <label for="dias-num">Días guardado</label>
+            <span class="field-unit">entre 1 y 90</span>
+          </div>
+          <input id="dias-range" type="range" min="1" max="90" step="1" value="7" aria-label="Días que se guarda el archivo">
+          <input id="dias-num" type="number" min="1" max="90" step="1" value="7">
+        </div>
+        <p class="hint">Después de esos días el archivo se borra solo. El máximo es 50 MB.</p>
+        <div class="actions">
+          <button type="button" id="subir" class="btn btn-primary">Subir y generar QR</button>
+        </div>
+      </section>
+
+      <p class="status" id="status" role="status" hidden></p>
+
+      <section class="panel result" id="result" hidden>
+        <h2>Listo</h2>
+        <label class="field-top" for="qr-link">Link del QR</label>
+        <input id="qr-link" class="text-input" readonly>
+        <p class="hint" id="vence" hidden></p>
+        <div class="qr-card">
+          <img id="qr-img" alt="Código QR">
+        </div>
+        <div class="actions">
+          <button type="button" id="copiar-link" class="btn">Copiar link</button>
+          <button type="button" id="copiar-qr" class="btn btn-primary">Copiar QR</button>
+          <button type="button" id="compartir" class="btn btn-teal" hidden>Compartir</button>
+          <button type="button" id="descargar" class="btn btn-pink">Descargar</button>
+        </div>
+        <p class="status" id="copy-status" role="status" hidden></p>
+      </section>
+    </div>
+    <script src="./vendor/qrcode.js"></script>
+    <script type="module" src="./qr.js"></script>
+  </body>
+</html>
