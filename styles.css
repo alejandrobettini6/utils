@@ -195,6 +195,10 @@ body::before {
   background: var(--teal);
 }
 
+.sticker-twitter {
+  background: var(--purple);
+}
+
 @media (min-width: 720px) {
   .sticker-live {
     grid-column: auto;
@@ -296,6 +300,7 @@ body::before {
 .sticker-live:focus-visible,
 .back:focus-visible,
 .btn:focus-visible,
+.text-input:focus-visible,
 .drop:focus-within {
   outline: 3px solid #5b46d6;
   outline-offset: 3px;
