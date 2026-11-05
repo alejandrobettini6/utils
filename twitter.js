@@ -1,3 +1,9 @@
+import { GIFEncoder, quantize, applyPalette } from "./vendor/gifenc.js";
+
+const FPS = 10;
+const MAX_GIF_WIDTH = 480;
+const MAX_GIF_SPAN = 15;
+
 const form = document.querySelector("#form");
 const linkInput = document.querySelector("#link");
 const fetchBtn = document.querySelector("#fetch");
@@ -10,6 +16,23 @@ const fileMeta = document.querySelector("#file-meta");
 const shareBtn = document.querySelector("#share");
 const downloadBtn = document.querySelector("#download");
 const copyStatus = document.querySelector("#copy-status");
+const gifBox = document.querySelector("#gif-box");
+const gifStartRange = document.querySelector("#gif-start-range");
+const gifEndRange = document.querySelector("#gif-end-range");
+const gifStartNum = document.querySelector("#gif-start-num");
+const gifEndNum = document.querySelector("#gif-end-num");
+const gifSpan = document.querySelector("#gif-span");
+const gifLimit = document.querySelector("#gif-limit");
+const gifPreviewBtn = document.querySelector("#gif-preview");
+const gifConvertBtn = document.querySelector("#gif-convert");
+const gifMeter = document.querySelector("#gif-meter");
+const gifMeterFill = document.querySelector("#gif-meter-fill");
+const gifResult = document.querySelector("#gif-result");
+const gifImg = document.querySelector("#gif-img");
+const gifCopyBtn = document.querySelector("#gif-copy");
+const gifShareBtn = document.querySelector("#gif-share");
+const gifDownloadBtn = document.querySelector("#gif-download");
+const gifStatus = document.querySelector("#gif-status");
 
 const HOSTS = new Set([
   "x.com",
@@ -28,7 +51,20 @@ const state = {
   blob: null,
   url: "",
   name: "",
+  duration: 0,
+  start: 0,
+  end: 0,
+  converting: false,
+  previewing: false,
+  gifBlob: null,
+  gifUrl: "",
+  gifName: "",
 };
+
+let runToken = 0;
+let seekToken = 0;
+let previewTimer = 0;
+let frameSeek = 0;
 
 form.addEventListener("submit", (event) => {
   event.preventDefault();
@@ -37,8 +73,30 @@ form.addEventListener("submit", (event) => {
 
 shareBtn.addEventListener("click", shareVideo);
 downloadBtn.addEventListener("click", downloadVideo);
+gifStartRange.addEventListener("input", () => {
+  stopGifPreview();
+  setGifSelection(Number(gifStartRange.value), state.end, "start");
+  showGifFrame(state.start);
+});
+gifEndRange.addEventListener("input", () => {
+  stopGifPreview();
+  setGifSelection(state.start, Number(gifEndRange.value), "end");
+  showGifFrame(state.end);
+});
+gifStartNum.addEventListener("change", () => applyGifTyped("start", gifStartNum));
+gifEndNum.addEventListener("change", () => applyGifTyped("end", gifEndNum));
+gifPreviewBtn.addEventListener("click", playGifSegment);
+gifConvertBtn.addEventListener("click", convertToGif);
+gifCopyBtn.addEventListener("click", copyGif);
+gifShareBtn.addEventListener("click", shareGif);
+gifDownloadBtn.addEventListener("click", downloadGif);
+video.addEventListener("timeupdate", () => {
+  if (!state.previewing) return;
+  if (video.currentTime >= state.end - 0.03) stopGifPreview();
+});
 
 async function downloadFromLink() {
+  runToken += 1;
   clearResult();
   hideDirect();
   setCopyStatus("");
@@ -92,6 +150,7 @@ async function downloadFromLink() {
     result.hidden = false;
     updateShareButton();
     setStatus("Video listo.", "ok");
+    prepareGif();
   } finally {
     fetchBtn.disabled = false;
   }
@@ -316,19 +375,15 @@ function metaLine(user, clip) {
 }
 
 function updateShareButton() {
-  const file = videoFile();
-  let allowed = false;
-  try {
-    allowed = Boolean(file && navigator.canShare && navigator.canShare({ files: [file] }));
-  } catch {
-    allowed = false;
-  }
-  shareBtn.hidden = !allowed;
+  shareBtn.hidden = !state.blob;
 }
 
 async function shareVideo() {
   const file = videoFile();
-  if (!file) return;
+  if (!file || !navigator.share) {
+    setCopyStatus("Este navegador no abre el menú para compartir. Probá Descargar.", "error");
+    return;
+  }
   try {
     await navigator.share({ files: [file], title: state.name });
     setCopyStatus("Listo para compartir.", "ok");
@@ -354,15 +409,22 @@ function videoFile() {
 }
 
 function clearResult() {
+  stopGifPreview();
   if (state.url) URL.revokeObjectURL(state.url);
   state.url = "";
   state.blob = null;
   state.name = "";
+  state.duration = 0;
+  state.start = 0;
+  state.end = 0;
+  state.converting = false;
   video.removeAttribute("src");
   video.load();
   fileMeta.textContent = "";
   result.hidden = true;
   shareBtn.hidden = true;
+  gifBox.hidden = true;
+  clearGif();
 }
 
 function showDirect(url) {
@@ -392,4 +454,375 @@ function setCopyStatus(text, kind) {
 function numberOrZero(value) {
   const number = Number(value);
   return Number.isFinite(number) ? number : 0;
+}
+
+async function prepareGif() {
+  const token = runToken;
+  gifBox.hidden = true;
+  try {
+    await waitForMeta(video);
+  } catch {
+    if (token !== runToken) return;
+    setCopyStatus("El video está listo. No se pudo leer la duración para armar el gif.", "error");
+    return;
+  }
+  if (token !== runToken) return;
+  if (!Number.isFinite(video.duration) || video.duration <= 0 || !video.videoWidth) {
+    setCopyStatus("El video está listo. No se pudo leer la duración para armar el gif.", "error");
+    return;
+  }
+  state.duration = video.duration;
+  for (const input of [gifStartRange, gifEndRange, gifStartNum, gifEndNum]) {
+    input.max = String(state.duration);
+  }
+  setGifSelection(0, Math.min(state.duration, MAX_GIF_SPAN), "end");
+  gifBox.hidden = false;
+}
+
+function waitForMeta(element) {
+  if (element.readyState >= 1 && Number.isFinite(element.duration) && element.duration > 0) {
+    return Promise.resolve();
+  }
+  return new Promise((resolve, reject) => {
+    const timer = window.setTimeout(() => {
+      cleanup();
+      reject(new Error("meta"));
+    }, 15000);
+    const onReady = () => {
+      cleanup();
+      resolve();
+    };
+    const onError = () => {
+      cleanup();
+      reject(new Error("meta"));
+    };
+    const cleanup = () => {
+      window.clearTimeout(timer);
+      element.removeEventListener("loadedmetadata", onReady);
+      element.removeEventListener("error", onError);
+    };
+    element.addEventListener("loadedmetadata", onReady);
+    element.addEventListener("error", onError);
+  });
+}
+
+function applyGifTyped(source, input) {
+  const value = Number.parseFloat(input.value);
+  if (!Number.isFinite(value)) {
+    renderGifSelection();
+    return;
+  }
+  stopGifPreview();
+  if (source === "start") setGifSelection(value, state.end, "start");
+  else setGifSelection(state.start, value, "end");
+  showGifFrame(source === "start" ? state.start : state.end);
+}
+
+function setGifSelection(start, end, source) {
+  const max = state.duration;
+  if (!max) return;
+  let nextStart = clamp(start, 0, max);
+  let nextEnd = clamp(end, 0, max);
+  const gap = Math.min(0.1, max);
+  if (nextEnd - nextStart < gap) {
+    if (source === "end") nextStart = clamp(nextEnd - gap, 0, max);
+    else nextEnd = clamp(nextStart + gap, 0, max);
+    if (nextEnd - nextStart < gap) {
+      nextStart = 0;
+      nextEnd = max;
+    }
+  }
+  state.start = clamp(round1(nextStart), 0, max);
+  state.end = clamp(round1(nextEnd), 0, max);
+  if (state.end < state.start) state.end = clamp(state.start + gap, 0, max);
+  renderGifSelection();
+}
+
+function renderGifSelection() {
+  gifStartRange.value = String(state.start);
+  gifEndRange.value = String(state.end);
+  gifStartNum.value = state.start.toFixed(1);
+  gifEndNum.value = state.end.toFixed(1);
+  const span = state.end - state.start;
+  const tooLong = span > MAX_GIF_SPAN + 0.05;
+  gifSpan.textContent = `Tramo de ${span.toFixed(1)} s`;
+  gifSpan.classList.toggle("is-bad", tooLong);
+  gifLimit.hidden = !tooLong;
+  const locked = state.converting;
+  gifConvertBtn.disabled = locked || tooLong || span <= 0;
+  gifPreviewBtn.disabled = locked || span <= 0;
+  gifStartRange.disabled = locked;
+  gifEndRange.disabled = locked;
+  gifStartNum.disabled = locked;
+  gifEndNum.disabled = locked;
+}
+
+function showGifFrame(time) {
+  if (state.converting || !state.duration) return;
+  cancelAnimationFrame(frameSeek);
+  frameSeek = requestAnimationFrame(() => {
+    if (Math.abs(video.currentTime - time) > 0.04) video.currentTime = time;
+  });
+}
+
+async function playGifSegment() {
+  if (state.converting || state.end <= state.start) return;
+  stopGifPreview();
+  state.previewing = true;
+  gifPreviewBtn.textContent = "Viendo…";
+  try {
+    await seekTo(state.start);
+    if (!state.previewing) return;
+    await video.play();
+  } catch {
+    stopGifPreview();
+    setGifStatus("No se pudo reproducir ese tramo.", "error");
+    return;
+  }
+  const ms = Math.max(80, (state.end - state.start) * 1000 + 60);
+  previewTimer = window.setTimeout(stopGifPreview, ms);
+}
+
+function stopGifPreview() {
+  state.previewing = false;
+  window.clearTimeout(previewTimer);
+  if (!video.paused) video.pause();
+  gifPreviewBtn.textContent = "Ver tramo";
+}
+
+async function convertToGif() {
+  const span = state.end - state.start;
+  if (state.converting || span <= 0 || span > MAX_GIF_SPAN + 0.05) return;
+  const token = runToken;
+  const start = state.start;
+  const end = state.end;
+  state.converting = true;
+  stopGifPreview();
+  clearGif();
+  setGifProgress(0, true);
+  setGifStatus("Preparando los fotogramas…");
+  renderGifSelection();
+  const wasMuted = video.muted;
+  video.muted = true;
+  video.pause();
+
+  try {
+    const blob = await encodeClip(token, start, end);
+    if (token !== runToken) return;
+    state.gifBlob = blob;
+    state.gifUrl = URL.createObjectURL(blob);
+    state.gifName = state.name.replace(/\.mp4$/i, "") + ".gif";
+    gifImg.src = state.gifUrl;
+    gifResult.hidden = false;
+    updateGifShare();
+    setGifProgress(1, false);
+    setGifStatus("Listo para copiar, compartir o descargar.", "ok");
+  } catch (error) {
+    if (token !== runToken) return;
+    setGifProgress(0, false);
+    setGifStatus(error.message || "No se pudo convertir el video.", "error");
+  } finally {
+    video.muted = wasMuted;
+    if (token === runToken) {
+      state.converting = false;
+      renderGifSelection();
+    }
+  }
+}
+
+async function encodeClip(token, start, end) {
+  const span = end - start;
+  const frameCount = Math.max(1, Math.round(span * FPS));
+  const delay = Math.max(20, Math.round((span / frameCount) * 1000));
+  const { w, h } = fitGifSize(video.videoWidth, video.videoHeight);
+  const canvas = document.createElement("canvas");
+  canvas.width = w;
+  canvas.height = h;
+  const context = canvas.getContext("2d", { willReadFrequently: true });
+  context.imageSmoothingEnabled = true;
+  context.imageSmoothingQuality = "high";
+  const gif = GIFEncoder();
+
+  for (let index = 0; index < frameCount; index += 1) {
+    if (token !== runToken) throw new Error("Se canceló la conversión.");
+    const time = start + ((index + 0.5) * span) / frameCount;
+    await seekTo(Math.min(time, Math.max(start, end - 0.04)));
+    await paintedFrame();
+    context.drawImage(video, 0, 0, w, h);
+    const { data } = context.getImageData(0, 0, w, h);
+    const palette = quantize(data, 256);
+    const indexed = applyPalette(data, palette);
+    gif.writeFrame(indexed, w, h, { palette, delay, dispose: 1 });
+    setGifProgress((index + 1) / frameCount, true);
+    setGifStatus(`Armando fotograma ${index + 1} de ${frameCount}`);
+    await yieldToUi();
+  }
+
+  gif.finish();
+  return new Blob([gif.bytes()], { type: "image/gif" });
+}
+
+function fitGifSize(width, height) {
+  const scale = Math.min(1, MAX_GIF_WIDTH / width);
+  let w = Math.max(2, Math.round(width * scale));
+  let h = Math.max(2, Math.round(height * scale));
+  if (w % 2) w -= 1;
+  if (h % 2) h -= 1;
+  return { w: Math.max(2, w), h: Math.max(2, h) };
+}
+
+function seekTo(time) {
+  const token = ++seekToken;
+  const target = clamp(time, 0, Math.max(0, (video.duration || 0) - 0.001));
+  if (Math.abs(video.currentTime - target) < 0.02 && video.readyState >= 2) {
+    return Promise.resolve();
+  }
+  return new Promise((resolve, reject) => {
+    const timer = window.setTimeout(() => {
+      cleanup();
+      reject(new Error("Tardó demasiado en leer un fotograma."));
+    }, 8000);
+    const onSeeked = () => {
+      if (token !== seekToken) return;
+      cleanup();
+      resolve();
+    };
+    const onError = () => {
+      cleanup();
+      reject(new Error("No se pudo leer el video en ese segundo."));
+    };
+    const cleanup = () => {
+      window.clearTimeout(timer);
+      video.removeEventListener("seeked", onSeeked);
+      video.removeEventListener("error", onError);
+    };
+    video.addEventListener("seeked", onSeeked);
+    video.addEventListener("error", onError);
+    try {
+      video.currentTime = target;
+    } catch (error) {
+      cleanup();
+      reject(error);
+    }
+  });
+}
+
+function paintedFrame() {
+  return new Promise((resolve) => {
+    let settled = false;
+    const finish = () => {
+      if (settled) return;
+      settled = true;
+      resolve();
+    };
+    const timer = window.setTimeout(finish, 90);
+    if (typeof video.requestVideoFrameCallback === "function") {
+      video.requestVideoFrameCallback(() => {
+        window.clearTimeout(timer);
+        finish();
+      });
+      return;
+    }
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      window.clearTimeout(timer);
+      finish();
+    }));
+  });
+}
+
+function yieldToUi() {
+  return new Promise((resolve) => {
+    window.setTimeout(resolve, 0);
+  });
+}
+
+function setGifProgress(value, visible) {
+  gifMeter.hidden = !visible;
+  const percent = Math.round(clamp(value, 0, 1) * 100);
+  gifMeter.setAttribute("aria-valuenow", String(percent));
+  gifMeterFill.style.width = `${percent}%`;
+}
+
+function updateGifShare() {
+  gifShareBtn.hidden = !state.gifBlob;
+}
+
+async function copyGif() {
+  if (!state.gifBlob) return;
+  let supports = true;
+  if (typeof ClipboardItem !== "undefined" && typeof ClipboardItem.supports === "function") {
+    try {
+      supports = ClipboardItem.supports("image/gif");
+    } catch {
+      supports = true;
+    }
+  }
+  if (!navigator.clipboard || typeof ClipboardItem === "undefined" || !supports) {
+    setGifStatus("Este navegador no puede copiar un gif animado. Usá Compartir o Descargar.", "error");
+    return;
+  }
+  try {
+    const item = new ClipboardItem({ "image/gif": Promise.resolve(state.gifBlob) });
+    await navigator.clipboard.write([item]);
+    setGifStatus("Copiado. Pegalo en WhatsApp u otro lado.", "ok");
+  } catch {
+    setGifStatus("No se pudo copiar el gif animado. Probá Compartir o Descargar.", "error");
+  }
+}
+
+async function shareGif() {
+  const file = gifFile();
+  if (!file || !navigator.share) {
+    setGifStatus("Este navegador no abre el menú para compartir. Probá Descargar.", "error");
+    return;
+  }
+  try {
+    await navigator.share({ files: [file], title: state.gifName });
+    setGifStatus("Listo para compartir.", "ok");
+  } catch (error) {
+    if (error?.name === "AbortError") return;
+    setGifStatus("No se pudo abrir el menú para compartir. Probá Descargar.", "error");
+  }
+}
+
+function downloadGif() {
+  if (!state.gifUrl) return;
+  const link = document.createElement("a");
+  link.href = state.gifUrl;
+  link.download = state.gifName;
+  document.body.append(link);
+  link.click();
+  link.remove();
+}
+
+function gifFile() {
+  if (!state.gifBlob) return null;
+  return new File([state.gifBlob], state.gifName, { type: "image/gif" });
+}
+
+function clearGif() {
+  if (state.gifUrl) URL.revokeObjectURL(state.gifUrl);
+  state.gifUrl = "";
+  state.gifBlob = null;
+  state.gifName = "";
+  gifImg.removeAttribute("src");
+  gifResult.hidden = true;
+  gifShareBtn.hidden = true;
+  setGifStatus("");
+  setGifProgress(0, false);
+}
+
+function setGifStatus(text, kind) {
+  gifStatus.textContent = text;
+  gifStatus.hidden = !text;
+  gifStatus.classList.toggle("is-error", kind === "error");
+  gifStatus.classList.toggle("is-ok", kind === "ok");
+}
+
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function round1(value) {
+  return Math.round(value * 10) / 10;
 }

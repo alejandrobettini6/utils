@@ -213,7 +213,10 @@ async function copiarQr() {
 }
 
 async function compartirQr() {
-  if (!state.pngBlob) return;
+  if (!state.pngBlob || !navigator.share) {
+    setCopyStatus("Este navegador no abre el menú para compartir.", "error");
+    return;
+  }
   const file = new File([state.pngBlob], "qr.png", { type: "image/png" });
   try {
     await navigator.share({ files: [file], title: "QR", text: state.url });
@@ -234,14 +237,7 @@ function descargarQr() {
 }
 
 function actualizarCompartir() {
-  const file = state.pngBlob ? new File([state.pngBlob], "qr.png", { type: "image/png" }) : null;
-  let allowed = false;
-  try {
-    allowed = Boolean(file && navigator.canShare && navigator.canShare({ files: [file] }));
-  } catch {
-    allowed = false;
-  }
-  compartirBtn.hidden = !allowed;
+  compartirBtn.hidden = !state.pngBlob;
 }
 
 function setDias(value) {

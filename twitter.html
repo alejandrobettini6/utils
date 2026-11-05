@@ -19,7 +19,7 @@
       <header class="tool-head">
         <p class="tape tape-small">marcador violeta</p>
         <h1>Twitter</h1>
-        <p class="lede">Pegá el link de un tuit. Si el video es público y viene en MP4, lo podés ver, compartir o guardar.</p>
+        <p class="lede">Pegá el link de un tuit. Si el video es público y viene en MP4, lo podés ver, compartir, guardar o pasar a gif.</p>
       </header>
 
       <form class="panel" id="form">
@@ -44,8 +44,51 @@
           <button type="button" id="share" class="btn btn-teal" hidden>Compartir</button>
           <button type="button" id="download" class="btn btn-pink">Descargar</button>
         </div>
-        <p class="hint">En el celular, Compartir manda el archivo. Si no aparece, usá Descargar.</p>
+        <p class="hint">En el celular, Compartir abre el menú para mandar el archivo.</p>
         <p class="status" id="copy-status" role="status" hidden></p>
+
+        <div id="gif-box" hidden>
+          <h2>Pasar a GIF</h2>
+          <div class="field">
+            <div class="field-top">
+              <label for="gif-start-num">Inicio</label>
+              <span class="field-unit">segundos</span>
+            </div>
+            <input id="gif-start-range" type="range" min="0" max="1" step="0.1" value="0" aria-label="Segundo de inicio">
+            <input id="gif-start-num" type="number" min="0" step="0.1" inputmode="decimal" value="0" autocomplete="off">
+          </div>
+          <div class="field">
+            <div class="field-top">
+              <label for="gif-end-num">Fin</label>
+              <span class="field-unit">segundos</span>
+            </div>
+            <input id="gif-end-range" type="range" min="0" max="1" step="0.1" value="1" aria-label="Segundo de fin">
+            <input id="gif-end-num" type="number" min="0" step="0.1" inputmode="decimal" value="1" autocomplete="off">
+          </div>
+          <p class="span-label" id="gif-span">Tramo de 0.0 s</p>
+          <p class="note" id="gif-limit" hidden>El gif puede durar hasta 15 segundos. Achicá el tramo para poder convertirlo.</p>
+          <div class="actions">
+            <button type="button" id="gif-preview" class="btn">Ver tramo</button>
+            <button type="button" id="gif-convert" class="btn btn-primary">Convertir a GIF</button>
+          </div>
+          <div class="meter" id="gif-meter" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Progreso de la conversión" hidden>
+            <div class="meter-fill" id="gif-meter-fill"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel result" id="gif-result" hidden>
+        <h2>GIF listo</h2>
+        <div class="gif-frame">
+          <img id="gif-img" alt="Vista previa del gif">
+        </div>
+        <div class="actions">
+          <button type="button" id="gif-copy" class="btn btn-primary">Copiar</button>
+          <button type="button" id="gif-share" class="btn btn-teal" hidden>Compartir</button>
+          <button type="button" id="gif-download" class="btn btn-pink">Descargar</button>
+        </div>
+        <p class="hint">En el celular, Compartir abre WhatsApp. Si Copiar no puede llevarse el gif animado, descargalo y mandalo como archivo.</p>
+        <p class="status" id="gif-status" role="status" hidden></p>
       </section>
 
       <noscript>

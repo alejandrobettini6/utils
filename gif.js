@@ -429,14 +429,7 @@ function yieldToUi() {
 }
 
 function updateShareButton() {
-  const file = gifFile();
-  let allowed = false;
-  try {
-    allowed = Boolean(file && navigator.canShare && navigator.canShare({ files: [file] }));
-  } catch {
-    allowed = false;
-  }
-  shareBtn.hidden = !allowed;
+  shareBtn.hidden = !state.gifBlob;
 }
 
 async function copyGif() {
@@ -466,7 +459,10 @@ async function copyGif() {
 
 async function shareGif() {
   const file = gifFile();
-  if (!file) return;
+  if (!file || !navigator.share) {
+    setCopyStatus("Este navegador no abre el menú para compartir. Probá Descargar.", "error");
+    return;
+  }
   try {
     await navigator.share({ files: [file], title: state.gifName });
     setCopyStatus("Listo para compartir.", "ok");
