@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#fff4d8">
+    <meta name="description" content="Pegá el link de un video de YouTube y bajalo o compartilo.">
+    <title>YouTube · utils</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23ffb4a2' stroke='%23241c16' stroke-width='4'/%3E%3Ctext x='32' y='42' text-anchor='middle' font-family='Arial Black,sans-serif' font-size='22' fill='%23241c16'%3EYT%3C/text%3E%3C/svg%3E">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <div class="page">
+      <a class="back" href="./index.html"><span aria-hidden="true">←</span> utils</a>
+
+      <header class="tool-head">
+        <p class="tape tape-small">marcador rojo</p>
+        <h1>YouTube</h1>
+        <p class="lede">Pegá el link de un video. Si llega en un MP4, lo podés ver, compartir o guardar.</p>
+      </header>
+
+      <form class="panel" id="form">
+        <label class="field-top" for="link">Link del video</label>
+        <input id="link" class="text-input" type="url" inputmode="url" autocomplete="off" placeholder="https://www.youtube.com/watch?v=…" required>
+        <div class="actions">
+          <button type="submit" id="fetch" class="btn btn-primary">Descargar</button>
+        </div>
+      </form>
+
+      <p class="status" id="status" role="status" hidden></p>
+      <div class="meter" id="meter" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Progreso de la descarga" hidden>
+        <div class="meter-fill" id="meter-fill"></div>
+      </div>
+
+      <div class="actions" id="direct-actions" hidden>
+        <a id="direct" class="btn" href="" target="_blank" rel="noopener noreferrer">Abrir el video</a>
+      </div>
+
+      <section class="panel result" id="result" hidden>
+        <h2>Listo</h2>
+        <video id="video" playsinline controls preload="metadata"></video>
+        <p class="file-meta" id="file-meta"></p>
+        <div class="actions">
+          <button type="button" id="share" class="btn btn-teal" hidden>Compartir</button>
+          <button type="button" id="download" class="btn btn-pink">Descargar</button>
+        </div>
+        <p class="hint">En el celular, Compartir abre el menú para mandar el archivo.</p>
+        <p class="status" id="copy-status" role="status" hidden></p>
+      </section>
+
+      <noscript>
+        <p class="note">Necesitás JavaScript para bajar el video.</p>
+      </noscript>
+    </div>
+    <script type="module" src="./youtube.js"></script>
+  </body>
+</html>

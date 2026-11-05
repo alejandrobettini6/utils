@@ -67,9 +67,17 @@ body::before {
   padding: 1.2rem 0 3rem;
 }
 
+.home .page {
+  padding-bottom: 7.4rem;
+}
+
 @media (min-width: 860px) {
   .page {
     width: min(100% - 7rem, 980px);
+  }
+
+  .home .page {
+    padding-bottom: 3rem;
   }
 }
 
@@ -199,6 +207,10 @@ body::before {
   background: var(--purple);
 }
 
+.sticker-youtube {
+  background: #ffb4a2;
+}
+
 @media (min-width: 720px) {
   .sticker-live {
     grid-column: auto;
@@ -299,6 +311,7 @@ body::before {
 
 .sticker-live:focus-visible,
 .back:focus-visible,
+.cafecito:focus-visible,
 .btn:focus-visible,
 .text-input:focus-visible,
 .drop:focus-within {
@@ -311,6 +324,67 @@ body::before {
   color: var(--muted);
   font-weight: 700;
   text-align: center;
+}
+
+.cafecito-bar {
+  position: fixed;
+  z-index: 5;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.28rem;
+  padding: 0.4rem 0.75rem calc(0.45rem + env(safe-area-inset-bottom));
+  border-top: 3px solid var(--ink);
+  background: #fff4d8;
+  text-align: center;
+}
+
+.cafecito-text {
+  margin: 0;
+  max-width: 34rem;
+  font-size: 0.84rem;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.cafecito {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: min(100%, 22rem);
+  min-height: 2.35rem;
+  padding: 0.32rem 0.85rem;
+  border: 3px solid var(--ink);
+  border-radius: 999px;
+  background: #6f4e37;
+  box-shadow: 3px 3px 0 var(--ink);
+  color: #fff8ee;
+  font-family: Fredoka, "Trebuchet MS", sans-serif;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+}
+
+.cafecito::before {
+  content: "☕";
+  margin-right: 0.45rem;
+}
+
+@media (min-width: 860px) {
+  .cafecito-bar {
+    position: static;
+    margin-top: 1.2rem;
+    border-top: 0;
+    background: transparent;
+    padding: 0 0.85rem 0.2rem;
+  }
+
+  .cafecito {
+    width: fit-content;
+  }
 }
 
 .back {
@@ -624,6 +698,16 @@ input[type="number"] {
   );
 }
 
+.meter.is-busy .meter-fill {
+  width: 38%;
+  animation: meter-slide 1.1s ease-in-out infinite;
+}
+
+@keyframes meter-slide {
+  from { transform: translateX(-130%); }
+  to { transform: translateX(320%); }
+}
+
 .result h2 {
   margin: 0 0 0.7rem;
   font-family: Fredoka, "Trebuchet MS", sans-serif;
@@ -826,5 +910,9 @@ input[type="number"] {
   * {
     scroll-behavior: auto !important;
     transition: none !important;
+  }
+
+  .meter.is-busy .meter-fill {
+    animation: none;
   }
 }
