@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#fff4d8">
-    <meta name="description" content="utils: cosas útiles para hacer en el navegador. Gif, PDF, un QR o un video de Twitter o YouTube.">
-    <title>utils</title>
+    <meta name="description" content="utiles: imágenes, PDF, video, descargas y texto. En el navegador, sin instalar nada.">
+    <title>utiles</title>
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23ffe14a' stroke='%23241c16' stroke-width='4'/%3E%3Ctext x='32' y='44' text-anchor='middle' font-family='Arial Black,sans-serif' font-size='36' fill='%23241c16'%3Eu%3C/text%3E%3C/svg%3E">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,121 +14,95 @@
   </head>
   <body class="home">
     <div class="page">
+      <form class="search" id="search" role="search">
+        <button class="search-back" id="volver" type="button" hidden aria-label="Volver al inicio">←</button>
+        <div class="search-field">
+          <label class="sr-only" for="buscar">Buscar una herramienta</label>
+          <input id="buscar" class="text-input search-input" type="text" placeholder="Qué querés hacer" enterkeyhint="search" autocomplete="off">
+          <button class="search-clear" id="borrar" type="button" hidden aria-label="Borrar búsqueda">×</button>
+        </div>
+        <button class="btn search-all" id="ver-todas" type="button">Ver todas</button>
+      </form>
+      <div class="search-results" id="resultados" hidden></div>
+      <div id="portada">
       <header class="hero">
         <p class="tape">cartuchera digital</p>
-        <h1 class="logo" aria-label="utils">
+        <h1 class="logo" aria-label="utiles">
           <span class="letter letter-u">u</span>
           <span class="letter letter-t">t</span>
           <span class="letter letter-i">i</span>
           <span class="letter letter-l">l</span>
+          <span class="letter letter-e">e</span>
           <span class="letter letter-s">s</span>
         </h1>
         <p class="tagline">Cosas útiles para hacer. En el navegador, sin instalar nada.</p>
       </header>
 
-      <section class="tools" aria-labelledby="tools-title">
-        <h2 id="tools-title">Para hacer</h2>
-
-        <a class="sticker sticker-live" href="./gif.html">
-          <span class="mark">Gif</span>
-          <span class="sticker-body">
-            <span class="stamp stamp-go">listo</span>
-            <span class="sticker-title">Gif</span>
-            <span class="sticker-text">De un video a un gif para copiar o mandar.</span>
-          </span>
-        </a>
-
-        <a class="sticker sticker-live sticker-pdf" href="./pdf.html">
-          <span class="mark">PDF</span>
-          <span class="sticker-body">
-            <span class="stamp stamp-go">listo</span>
-            <span class="sticker-title">PDF</span>
-            <span class="sticker-text">Pasá un Word a PDF. De PDF a Word, más adelante.</span>
-          </span>
-        </a>
-
-        <a class="sticker sticker-live sticker-qr" href="./qr.html">
-          <span class="mark">QR</span>
-          <span class="sticker-body">
-            <span class="stamp stamp-go">listo</span>
-            <span class="sticker-title">QR</span>
-            <span class="sticker-text">Un QR de un link o de un archivo temporal.</span>
-          </span>
-        </a>
-
-        <a class="sticker sticker-live sticker-twitter" href="./twitter.html">
-          <span class="mark">X</span>
-          <span class="sticker-body">
-            <span class="stamp stamp-go">listo</span>
-            <span class="sticker-title">Twitter</span>
-            <span class="sticker-text">Pegá el link de un tuit y bajá el video.</span>
-          </span>
-        </a>
-
-        <a class="sticker sticker-live sticker-youtube" href="./youtube.html">
-          <span class="mark">YT</span>
-          <span class="sticker-body">
-            <span class="stamp stamp-go">listo</span>
-            <span class="sticker-title">YouTube</span>
-            <span class="sticker-text">Pegá el link y bajá o compartí el video.</span>
-          </span>
-        </a>
-
-        <article class="sticker sticker-soon paper-pink">
-          <span class="stamp">pronto</span>
-          <span class="mark">Cut</span>
-          <span class="sticker-title">Recortar</span>
-          <span class="sticker-text">Cortá una imagen al tamaño justo.</span>
-        </article>
-
-        <article class="sticker sticker-soon paper-purple">
-          <span class="stamp">pronto</span>
-          <span class="mark">Mix</span>
-          <span class="sticker-title">Paleta</span>
-          <span class="sticker-text">Colores sacados de una foto.</span>
-        </article>
-
-        <article class="sticker sticker-soon paper-orange">
-          <span class="stamp">pronto</span>
-          <span class="mark">Nota</span>
-          <span class="sticker-title">Notas</span>
-          <span class="sticker-text">Una hoja para anotar rápido.</span>
-        </article>
-
-        <article class="sticker sticker-soon paper-blue">
-          <span class="stamp">pronto</span>
-          <span class="mark">Min</span>
-          <span class="sticker-title">Temporizador</span>
-          <span class="sticker-text">Una alarma de cartuchera.</span>
-        </article>
-
-        <article class="sticker sticker-soon paper-green">
-          <span class="stamp">pronto</span>
-          <span class="mark">123</span>
-          <span class="sticker-title">Contador</span>
-          <span class="sticker-text">Palabras, letras y caracteres.</span>
-        </article>
-
-        <article class="sticker sticker-soon paper-rose">
-          <span class="stamp">pronto</span>
-          <span class="mark">Aa</span>
-          <span class="sticker-title">Mayúsculas</span>
-          <span class="sticker-text">Pasá un texto a otro formato.</span>
-        </article>
-
-        <article class="sticker sticker-soon paper-lemon">
-          <span class="stamp">pronto</span>
-          <span class="mark">Km</span>
-          <span class="sticker-title">Unidades</span>
-          <span class="sticker-text">Convertí medidas sin buscar.</span>
-        </article>
+      <section class="recents" aria-labelledby="recents-title">
+        <h2 id="recents-title">Lo que venís usando</h2>
+        <div class="recent-row" id="recent-row"></div>
       </section>
 
-      <p class="footnote">Gif, PDF y los videos de Twitter y YouTube se arman en el navegador. Si subís un archivo para un QR, se guarda solo los días que elijas.</p>
+      <section class="tools" id="grupos" aria-labelledby="tools-title">
+        <h2 id="tools-title">Para hacer</h2>
+
+        <a class="sticker sticker-live sticker-imagen" href="./imagenes.html" data-grupo="imagenes">
+          <span class="mark">Img</span>
+          <span class="sticker-body">
+            <span class="sticker-title">Imágenes</span>
+            <span class="sticker-text">Comprimir una foto o ponerle una marca.</span>
+          </span>
+        </a>
+
+        <a class="sticker sticker-live sticker-pdf" href="./pdfs.html" data-grupo="pdf">
+          <span class="mark">PDF</span>
+          <span class="sticker-body">
+            <span class="sticker-title">PDF</span>
+            <span class="sticker-text">Unir, ordenar, firmar o pasar de Word.</span>
+          </span>
+        </a>
+
+        <a class="sticker sticker-live sticker-video" href="./videos.html" data-grupo="video">
+          <span class="mark">Vid</span>
+          <span class="sticker-body">
+            <span class="sticker-title">Video</span>
+            <span class="sticker-text">Pasar un video a gif.</span>
+          </span>
+        </a>
+
+        <a class="sticker sticker-live sticker-descargas" href="./descargas.html" data-grupo="descargas">
+          <span class="mark">Baj</span>
+          <span class="sticker-body">
+            <span class="sticker-title">Descargas</span>
+            <span class="sticker-text">Bajar un video de Twitter o YouTube.</span>
+          </span>
+        </a>
+
+        <a class="sticker sticker-live sticker-datos" href="./datos.html" data-grupo="texto">
+          <span class="mark">Aa</span>
+          <span class="sticker-body">
+            <span class="sticker-title">Texto y datos</span>
+            <span class="sticker-text">Contar, comparar, CSV, QR y claves.</span>
+          </span>
+        </a>
+      </section>
+
+      <p class="footnote">Las herramientas se arman en este navegador. Si subís un archivo para un QR, se guarda solo los días que elijas.</p>
+      </div>
     </div>
+    <dialog class="sheet" id="sheet" aria-labelledby="sheet-title">
+      <div class="sheet-top">
+        <h2 id="sheet-title">Herramientas</h2>
+        <form method="dialog">
+          <button class="sheet-close" type="submit">Cerrar</button>
+        </form>
+      </div>
+      <div class="sheet-list" id="sheet-list"></div>
+    </dialog>
     <aside class="cafecito-bar">
       <p class="cafecito-text">Si te sirvió, un cafecito valora el laburo, a tu medida</p>
       <a class="cafecito" href="https://cafecito.app/alejandroo11" target="_blank" rel="noopener noreferrer">Invitame un cafecito</a>
     </aside>
+    <script type="module" src="./index.js"></script>
   </body>
 </html>

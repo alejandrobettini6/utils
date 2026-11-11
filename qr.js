@@ -4,6 +4,9 @@ import {
   subirArchivo,
   supabaseConectado,
 } from "./supabase.public.js";
+import { abrir, ejecutar } from "./uso.js";
+
+abrir("qr");
 
 const MAX_BYTES = 50 * 1024 * 1024;
 
@@ -144,6 +147,7 @@ function mostrarQr(url, aviso) {
   result.hidden = false;
   setCopyStatus("");
   actualizarCompartir();
+  ejecutar("qr");
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   result.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "nearest" });
 }

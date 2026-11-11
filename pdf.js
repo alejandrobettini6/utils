@@ -1,5 +1,9 @@
+import { abrir, ejecutar } from "./uso.js";
+
 const { PDFDocument, StandardFonts, rgb } = globalThis.PDFLib;
 const mammoth = globalThis.mammoth;
+
+abrir("pdf");
 
 const PAGE_WIDTH = 595.28;
 const PAGE_HEIGHT = 841.89;
@@ -151,6 +155,7 @@ async function convert() {
     pdfPreview.src = state.pdfUrl;
     result.hidden = false;
     setStatus("Listo para descargar.", "ok");
+    ejecutar("pdf");
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     result.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "nearest" });
   } catch {
@@ -177,7 +182,7 @@ function downloadPdf() {
 async function renderPdf(blocks, title) {
   const pdf = await PDFDocument.create();
   pdf.setTitle(toPdfName(title).replace(/\.pdf$/i, ""));
-  pdf.setCreator("utils");
+  pdf.setCreator("utiles");
   const fonts = {
     regular: await pdf.embedFont(StandardFonts.Helvetica),
     bold: await pdf.embedFont(StandardFonts.HelveticaBold),

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#fff4d8">
+    <title>Diferencias · utiles</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <div class="page">
+      <a class="back" href="./datos.html"><span aria-hidden="true">←</span> Texto y datos</a>
+      <header class="tool-head">
+        <h1>Diferencias</h1>
+        <p class="lede">Lo que coincide queda en verde y lo que cambia, en rojo. Elegí si lo querés ver en el texto original o en el texto a comparar.</p>
+      </header>
+      <label class="field-top" for="antes">Texto original</label>
+      <textarea id="antes" class="text-area"></textarea>
+      <label class="field-top" for="despues">Texto a comparar</label>
+      <textarea id="despues" class="text-area"></textarea>
+      <label class="field-top" for="vista">Ver las diferencias en</label>
+      <select id="vista" class="select-input">
+        <option value="original">Texto original</option>
+        <option value="comparar" selected>Texto a comparar</option>
+      </select>
+      <button class="btn btn-primary" id="run" type="button">Comparar</button>
+      <p class="status" id="status" role="status" hidden></p>
+      <div class="diff-view" id="diff" hidden></div>
+    </div>
+    <script type="module" src="./texto-diff.js"></script>
+  </body>
+</html>

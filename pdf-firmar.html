@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#fff4d8">
+    <title>Firmar · utiles</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <div class="page">
+      <a class="back" href="./pdfs.html"><span aria-hidden="true">←</span> PDF</a>
+      <header class="tool-head">
+        <h1>Firmar</h1>
+        <p class="lede">Dibujá la firma y arrastrala sobre la página hasta dejarla donde va. No es un certificado digital.</p>
+      </header>
+      <label class="drop">
+        <input id="file" class="drop-input" type="file" accept="application/pdf,.pdf">
+        <span class="drop-copy"><span class="drop-badge">PDF</span><strong id="drop-title">Elegí un PDF</strong></span>
+      </label>
+      <label class="field-top" for="pagina">Página</label>
+      <input id="pagina" class="text-input" type="number" min="1" value="1" inputmode="numeric">
+      <div class="sign-page" id="sign-page" hidden>
+        <div class="sign-sheet" id="sign-sheet">
+          <canvas id="page-canvas"></canvas>
+          <div id="stamp" class="sign-stamp">
+            <img id="stamp-img" alt="">
+            <button id="stamp-resize" class="sign-resize" type="button" aria-label="Cambiar tamaño"></button>
+          </div>
+        </div>
+      </div>
+      <p class="hint">Arrastrá la firma. Para achicarla, juntá dos dedos o usá la rueda del mouse. El punto rosa también cambia el tamaño.</p>
+      <p class="hint">Dibujá la firma o subí una imagen.</p>
+      <canvas id="pad" class="draw-pad" width="900" height="280"></canvas>
+      <div class="actions">
+        <label class="btn">Subir imagen<input id="firma" class="sr-file" type="file" accept="image/png,image/jpeg,image/webp"></label>
+        <button class="btn" id="limpiar" type="button">Limpiar</button>
+        <button class="btn btn-primary" id="run" type="button">Poner firma</button>
+      </div>
+      <p class="status" id="status" role="status" hidden></p>
+      <section class="panel result" id="result" hidden>
+        <h2>Listo</h2>
+        <iframe id="preview" title="Vista previa del PDF firmado"></iframe>
+        <button class="btn btn-pink" id="download" type="button">Descargar</button>
+      </section>
+    </div>
+    <script src="./vendor/pdfjs/pdf.min.js"></script>
+    <script src="./vendor/pdf-lib.js"></script>
+    <script type="module" src="./pdf-firmar.js"></script>
+  </body>
+</html>

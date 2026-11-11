@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#fff4d8">
+    <title>Contraseña · utiles</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <div class="page">
+      <a class="back" href="./datos.html"><span aria-hidden="true">←</span> Texto y datos</a>
+      <header class="tool-head">
+        <h1>Contraseña</h1>
+        <p class="lede">Se arma en este aparato, con números al azar del navegador.</p>
+      </header>
+      <label class="field-top" for="largo">Largo <span id="largo-num">16</span></label>
+      <input id="largo" type="range" min="8" max="64" step="1" value="16">
+      <label class="check"><input id="mayus" type="checkbox" checked> Mayúsculas</label>
+      <label class="check"><input id="numeros" type="checkbox" checked> Números</label>
+      <label class="check"><input id="simbolos" type="checkbox" checked> Símbolos</label>
+      <div class="actions">
+        <button class="btn btn-primary" id="run" type="button">Generar</button>
+        <button class="btn" id="copy" type="button" disabled>Copiar</button>
+      </div>
+      <p class="status" id="status" role="status" hidden></p>
+      <p class="file-meta" id="clave"></p>
+    </div>
+    <script type="module" src="./clave.js"></script>
+  </body>
+</html>

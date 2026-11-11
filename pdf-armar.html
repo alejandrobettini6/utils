@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#fff4d8">
+    <title>Armar PDF · utiles</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <div class="page">
+      <a class="back" href="./pdfs.html"><span aria-hidden="true">←</span> PDF</a>
+      <header class="tool-head">
+        <h1>Armar PDF</h1>
+        <p class="lede">Unir, sacar páginas o cambiar el orden. El archivo no se sube.</p>
+      </header>
+      <div class="modes" id="modos">
+        <button class="mode" type="button" data-modo="unir"><span class="mode-title">Unir</span><span class="mode-text">Varios PDF en uno.</span></button>
+        <button class="mode" type="button" data-modo="dividir"><span class="mode-title">Dividir</span><span class="mode-text">Quedarte con algunas páginas.</span></button>
+        <button class="mode" type="button" data-modo="paginas"><span class="mode-title">Rotar y ordenar</span><span class="mode-text">Girar o mover páginas.</span></button>
+      </div>
+
+      <section id="panel-unir">
+        <label class="drop">
+          <input id="files-unir" class="drop-input" type="file" accept="application/pdf,.pdf" multiple>
+          <span class="drop-copy"><span class="drop-badge">PDF</span><strong>Elegí uno o más PDF</strong></span>
+        </label>
+        <div id="lista-unir"></div>
+        <div class="actions"><button class="btn btn-primary" id="run-unir" type="button">Unir</button></div>
+      </section>
+
+      <section id="panel-dividir" hidden>
+        <label class="drop">
+          <input id="file-dividir" class="drop-input" type="file" accept="application/pdf,.pdf">
+          <span class="drop-copy"><span class="drop-badge">PDF</span><strong id="nombre-dividir">Elegí un PDF</strong></span>
+        </label>
+        <label class="field-top" for="rango">Páginas</label>
+        <input id="rango" class="text-input" type="text" inputmode="text" placeholder="1-3, 5" autocomplete="off">
+        <div class="actions"><button class="btn btn-primary" id="run-dividir" type="button">Sacar páginas</button></div>
+      </section>
+
+      <section id="panel-paginas" hidden>
+        <label class="drop">
+          <input id="file-paginas" class="drop-input" type="file" accept="application/pdf,.pdf">
+          <span class="drop-copy"><span class="drop-badge">PDF</span><strong id="nombre-paginas">Elegí un PDF</strong></span>
+        </label>
+        <div id="lista-paginas"></div>
+        <div class="actions"><button class="btn btn-primary" id="run-paginas" type="button">Guardar orden</button></div>
+      </section>
+
+      <p class="status" id="status" role="status" hidden></p>
+      <section class="panel result" id="result" hidden>
+        <h2>Listo</h2>
+        <iframe id="preview" title="Vista previa del PDF"></iframe>
+        <button class="btn btn-pink" id="download" type="button">Descargar</button>
+      </section>
+    </div>
+    <script src="./vendor/pdf-lib.js"></script>
+    <script type="module" src="./pdf-armar.js"></script>
+  </body>
+</html>

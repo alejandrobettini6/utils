@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#fff4d8">
+    <title>Contador · utiles</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <div class="page">
+      <a class="back" href="./datos.html"><span aria-hidden="true">←</span> Texto y datos</a>
+      <header class="tool-head">
+        <h1>Contador</h1>
+        <p class="lede">Palabras, letras y caracteres. El texto no se guarda.</p>
+      </header>
+      <label class="field-top" for="texto">Texto</label>
+      <textarea id="texto" class="text-area" placeholder="Pegá o escribí acá"></textarea>
+      <p class="file-meta" id="cuenta">0 palabras · 0 letras · 0 caracteres · 0 líneas</p>
+    </div>
+    <script type="module" src="./texto-contar.js"></script>
+  </body>
+</html>
