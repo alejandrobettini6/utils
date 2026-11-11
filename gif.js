@@ -1,4 +1,7 @@
 import { GIFEncoder, quantize, applyPalette } from "./vendor/gifenc.js";
+import { abrir, ejecutar } from "./uso.js";
+
+abrir("gif");
 
 const FPS = 10;
 const MAX_WIDTH = 480;
@@ -306,6 +309,7 @@ async function convert() {
     updateShareButton();
     setProgress(1, false);
     setStatus("Listo para copiar, compartir o descargar.", "ok");
+    ejecutar("gif");
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     result.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "nearest" });
   } catch (error) {

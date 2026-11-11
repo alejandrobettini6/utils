@@ -1,4 +1,7 @@
 import { createFile, DataStream } from "./vendor/mp4box/mp4box.all.mjs";
+import { abrir, ejecutar } from "./uso.js";
+
+abrir("youtube");
 
 const MAX_BYTES = 40 * 1024 * 1024;
 const APIS = ["https://rue-cobalt.xenon.zone/"];
@@ -92,6 +95,7 @@ async function downloadFromLink() {
     updateShareButton();
     hideProgress();
     setStatus("Video listo.", "ok");
+    ejecutar("youtube");
   } finally {
     hideProgress();
     fetchBtn.disabled = false;

@@ -30,7 +30,7 @@ async function abrirArchivo(archivoId) {
     const url = urlPublica(archivo.storage_path);
     const tipo = (archivo.content_type || "").toLowerCase();
     titulo.textContent = archivo.nombre || "Archivo";
-    document.title = `${titulo.textContent} · utils`;
+    document.title = `${titulo.textContent} · utiles`;
     const fecha = new Date(archivo.expires_at);
     detalle.textContent = Number.isNaN(fecha.getTime())
       ? "Este link abre solo este archivo."

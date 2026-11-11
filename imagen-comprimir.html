@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#fff4d8">
+    <title>Comprimir · utiles</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <div class="page">
+      <a class="back" href="./imagenes.html"><span aria-hidden="true">←</span> Imágenes</a>
+      <header class="tool-head">
+        <h1>Comprimir</h1>
+        <p class="lede">JPG, PNG o WebP. La foto no sale de este aparato. Un PNG de foto casi no adelgaza: para eso conviene JPG o WebP.</p>
+      </header>
+      <label class="drop" id="dropzone">
+        <input id="file" class="drop-input" type="file" accept="image/jpeg,image/png,image/webp">
+        <span class="drop-copy">
+          <span class="drop-badge">Img</span>
+          <strong id="drop-title">Elegí una imagen</strong>
+          <span id="drop-help">JPG, PNG o WebP</span>
+        </span>
+      </label>
+      <form class="panel" id="form" hidden>
+        <label class="field-top" for="formato">Formato</label>
+        <select id="formato" class="select-input">
+          <option value="image/jpeg">JPG</option>
+          <option value="image/webp">WebP</option>
+          <option value="image/png">PNG</option>
+        </select>
+        <label class="field-top" for="calidad">Calidad <span id="calidad-num">80</span></label>
+        <input id="calidad" type="range" min="40" max="95" step="1" value="80">
+        <div class="actions">
+          <button class="btn btn-primary" id="run" type="submit">Comprimir</button>
+        </div>
+      </form>
+      <p class="status" id="status" role="status" hidden></p>
+      <section class="panel result" id="result" hidden>
+        <h2>Listo</h2>
+        <img id="preview" class="preview-img" alt="Imagen comprimida">
+        <p class="file-meta" id="file-meta"></p>
+        <button class="btn btn-pink" id="download" type="button">Descargar</button>
+      </section>
+    </div>
+    <script type="module" src="./imagen-comprimir.js"></script>
+  </body>
+</html>

@@ -340,6 +340,93 @@ select cron.schedule(
 );
 
 -- ---------------------------------------------------------------------------
+-- Uso de herramientas
+-- El sitio suma aperturas y ejecuciones. La lista solo sale con la clave
+-- guardada en utils_interno.secreto, clave uso_panel.
+-- Cargala una vez en el SQL Editor y no la dejes en el repo:
+-- insert into utils_interno.secreto (clave, valor) values
+--   ('uso_panel', 'UNA-CLAVE-LARGA')
+-- on conflict (clave) do update set valor = excluded.valor;
+-- ---------------------------------------------------------------------------
+
+create table if not exists public.utils_uso (
+  herramienta text primary key,
+  aperturas bigint not null default 0,
+  ejecuciones bigint not null default 0,
+  constraint utils_uso_aperturas_ok check (aperturas >= 0),
+  constraint utils_uso_ejecuciones_ok check (ejecuciones >= 0)
+);
+
+alter table public.utils_uso enable row level security;
+
+create or replace function public.registrar_uso(p_herramienta text, p_evento text)
+returns void
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if p_evento is null or p_evento not in ('abrir', 'ejecutar') then
+    return;
+  end if;
+  if p_herramienta is null or p_herramienta not in (
+    'gif', 'pdf', 'qr', 'twitter', 'youtube',
+    'imagen-comprimir', 'imagen-heic', 'imagen-marca',
+    'pdf-unir', 'pdf-dividir', 'pdf-paginas', 'pdf-imagenes', 'pdf-firmar',
+    'texto-contar', 'texto-diff', 'texto-csv', 'clave', 'unidades'
+  ) then
+    return;
+  end if;
+
+  insert into public.utils_uso (herramienta, aperturas, ejecuciones)
+  values (
+    p_herramienta,
+    case when p_evento = 'abrir' then 1 else 0 end,
+    case when p_evento = 'ejecutar' then 1 else 0 end
+  )
+  on conflict (herramienta) do update
+  set aperturas = public.utils_uso.aperturas + excluded.aperturas,
+      ejecuciones = public.utils_uso.ejecuciones + excluded.ejecuciones;
+end;
+$$;
+
+revoke all on function public.registrar_uso(text, text) from public;
+grant execute on function public.registrar_uso(text, text) to anon, authenticated;
+
+create or replace function public.ver_uso(p_clave text)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public, utils_interno
+as $$
+declare
+  v_clave text;
+  v_filas jsonb;
+begin
+  select valor into v_clave
+  from utils_interno.secreto
+  where clave = 'uso_panel';
+
+  if coalesce(v_clave, '') = '' or p_clave is null or p_clave <> v_clave then
+    return jsonb_build_object('ok', false);
+  end if;
+
+  select coalesce(jsonb_agg(jsonb_build_object(
+    'herramienta', u.herramienta,
+    'aperturas', u.aperturas,
+    'ejecuciones', u.ejecuciones
+  ) order by u.aperturas desc, u.ejecuciones desc, u.herramienta), '[]'::jsonb)
+  into v_filas
+  from public.utils_uso u;
+
+  return jsonb_build_object('ok', true, 'filas', v_filas);
+end;
+$$;
+
+revoke all on function public.ver_uso(text) from public;
+grant execute on function public.ver_uso(text) to anon, authenticated;
+
+-- ---------------------------------------------------------------------------
 -- BORRADO TOTAL MANUAL
 -- No se ejecuta solo. Sirve para vaciar a propósito todo lo de esta app.
 -- El identificador es namespace = 'utils' y el bucket utils-files.

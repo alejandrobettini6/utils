@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#fff4d8">
+    <title>CSV y JSON · utiles</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <div class="page">
+      <a class="back" href="./datos.html"><span aria-hidden="true">←</span> Texto y datos</a>
+      <header class="tool-head">
+        <h1>CSV y JSON</h1>
+        <p class="lede">Pegá un CSV o un JSON de filas. La conversión queda en este aparato.</p>
+      </header>
+      <label class="field-top" for="entrada">Entrada</label>
+      <textarea id="entrada" class="text-area" placeholder="nombre,edad&#10;Ana,3"></textarea>
+      <div class="actions">
+        <button class="btn btn-primary" id="a-json" type="button">A JSON</button>
+        <button class="btn" id="a-csv" type="button">A CSV</button>
+        <button class="btn btn-pink" id="download" type="button" disabled>Descargar</button>
+      </div>
+      <p class="status" id="status" role="status" hidden></p>
+      <label class="field-top" for="salida">Resultado</label>
+      <textarea id="salida" class="text-area" readonly></textarea>
+    </div>
+    <script type="module" src="./texto-csv.js"></script>
+  </body>
+</html>

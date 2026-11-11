@@ -1,4 +1,7 @@
 import { GIFEncoder, quantize, applyPalette } from "./vendor/gifenc.js";
+import { abrir, ejecutar } from "./uso.js";
+
+abrir("twitter");
 
 const FPS = 10;
 const MAX_GIF_WIDTH = 480;
@@ -150,6 +153,7 @@ async function downloadFromLink() {
     result.hidden = false;
     updateShareButton();
     setStatus("Video listo.", "ok");
+    ejecutar("twitter");
     prepareGif();
   } finally {
     fetchBtn.disabled = false;

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#fff4d8">
+    <title>Marca de agua · utiles</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <div class="page">
+      <a class="back" href="./imagenes.html"><span aria-hidden="true">←</span> Imágenes</a>
+      <header class="tool-head">
+        <h1>Marca de agua</h1>
+        <p class="lede">El texto queda en la foto, o en cada página de un PDF. Nada se sube.</p>
+      </header>
+      <label class="drop" id="dropzone">
+        <input id="file" class="drop-input" type="file" accept="image/jpeg,image/png,image/webp,application/pdf,.pdf">
+        <span class="drop-copy">
+          <span class="drop-badge">Aa</span>
+          <strong id="drop-title">Elegí una imagen o un PDF</strong>
+          <span>JPG, PNG, WebP o PDF</span>
+        </span>
+      </label>
+      <form class="panel" id="form" hidden>
+        <label class="field-top" for="texto">Texto</label>
+        <input id="texto" class="text-input" type="text" maxlength="80" value="utiles" required>
+        <label class="field-top" for="lugar">Lugar</label>
+        <select id="lugar" class="select-input">
+          <option value="esquina">Esquina</option>
+          <option value="abajo">Abajo</option>
+          <option value="centro">Centro</option>
+        </select>
+        <label class="field-top" for="inclinacion">Inclinación</label>
+        <select id="inclinacion" class="select-input">
+          <option value="recto">Recto</option>
+          <option value="diagonal">Diagonal</option>
+        </select>
+        <label class="field-top" for="tamano">Tamaño de la letra <span id="tamano-num">48</span></label>
+        <input id="tamano" type="range" min="16" max="160" step="1" value="48">
+        <label class="field-top" for="opacidad">Opacidad <span id="opacidad-num">45</span></label>
+        <input id="opacidad" type="range" min="15" max="90" step="1" value="45">
+        <div class="actions">
+          <button class="btn btn-primary" id="preview-btn" type="button">Preview</button>
+        </div>
+      </form>
+      <p class="status" id="status" role="status" hidden></p>
+      <section class="panel result" id="result" hidden>
+        <h2>Listo</h2>
+        <img id="preview" class="preview-img" alt="Imagen con marca de agua">
+        <iframe id="pdf-preview" title="Vista previa del PDF con marca" hidden></iframe>
+        <button class="btn btn-pink" id="download" type="button">Descargar</button>
+      </section>
+    </div>
+    <script src="./vendor/pdf-lib.js"></script>
+    <script type="module" src="./imagen-marca.js"></script>
+  </body>
+</html>
