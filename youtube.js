@@ -1,5 +1,6 @@
 import { createFile, DataStream } from "./vendor/mp4box/mp4box.all.mjs";
 import { abrir, ejecutar } from "./uso.js";
+import { achicarVideo, conectarGif } from "./descarga-extra.js";
 
 abrir("youtube");
 
@@ -23,7 +24,9 @@ const video = document.querySelector("#video");
 const fileMeta = document.querySelector("#file-meta");
 const shareBtn = document.querySelector("#share");
 const downloadBtn = document.querySelector("#download");
+const lightBtn = document.querySelector("#light");
 const copyStatus = document.querySelector("#copy-status");
+const extras = conectarGif(video, { nombre: () => state.name });
 
 const state = {
   blob: null,
@@ -37,6 +40,7 @@ form.addEventListener("submit", (event) => {
 });
 shareBtn.addEventListener("click", shareVideo);
 downloadBtn.addEventListener("click", downloadVideo);
+lightBtn.addEventListener("click", bajarLiviano);
 
 async function downloadFromLink() {
   clearResult();
@@ -70,7 +74,7 @@ async function downloadFromLink() {
 
     if (!blob) {
       try {
-        const mixed = await downloadMixed(new URL(pageUrl).searchParams.get("v"));
+        const mixed = await downloadMixed(new URL(pageUrl).searchParams.get("v"), 720);
         blob = mixed.blob;
         name = mixed.name;
       } catch (error) {
@@ -96,6 +100,7 @@ async function downloadFromLink() {
     hideProgress();
     setStatus("Video listo.", "ok");
     ejecutar("youtube");
+    extras.listo();
   } finally {
     hideProgress();
     fetchBtn.disabled = false;
@@ -132,7 +137,7 @@ function parseYouTubeUrl(raw) {
   return `https://www.youtube.com/watch?v=${id}`;
 }
 
-async function resolveYouTube(pageUrl) {
+async function resolveYouTube(pageUrl, quality = "720") {
   let sawNetwork = true;
   for (const api of APIS) {
     try {
@@ -144,7 +149,7 @@ async function resolveYouTube(pageUrl) {
         },
         body: JSON.stringify({
           url: pageUrl,
-          videoQuality: "720",
+          videoQuality: quality,
           youtubeVideoCodec: "h264",
           youtubeVideoContainer: "mp4",
           filenameStyle: "basic",
@@ -175,14 +180,14 @@ function pickFile(body) {
   return null;
 }
 
-async function downloadMixed(id) {
+async function downloadMixed(id, maxHeight = 720) {
   const response = await fetch(`${VIDEO_API}${id}`);
   const info = await response.json().catch(() => null);
   if (!response.ok || !info || info.error || !Array.isArray(info.adaptiveFormats)) {
     throw new Error("missing");
   }
 
-  const pair = pickPair(info.adaptiveFormats);
+  const pair = pickPair(info.adaptiveFormats, maxHeight);
   if (!pair) throw new Error("heavy");
 
   const videoSize = sizeOf(pair.video);
@@ -206,13 +211,13 @@ async function downloadMixed(id) {
   };
 }
 
-function pickPair(formats) {
+function pickPair(formats, maxHeight = 720) {
   const videos = uniqueItag(formats.filter((item) => isAvc(item) && heightOf(item) > 0))
     .sort((a, b) => heightOf(b) - heightOf(a) || sizeOf(b) - sizeOf(a));
   const audios = uniqueItag(formats.filter((item) => isAac(item)))
     .sort((a, b) => sizeOf(b) - sizeOf(a));
   for (const video of videos) {
-    if (heightOf(video) > 720) continue;
+    if (heightOf(video) > maxHeight) continue;
     for (const audio of audios) {
       if (sizeOf(video) + sizeOf(audio) <= MAX_BYTES) return { video, audio };
     }
@@ -451,6 +456,78 @@ async function shareVideo() {
   }
 }
 
+async function bajarLiviano() {
+  if (!state.blob || lightBtn.disabled) return;
+  const pageUrl = parseYouTubeUrl(linkInput.value);
+  lightBtn.disabled = true;
+  setCopyStatus("Armando una versión liviana…");
+  try {
+    let blob = null;
+    let name = "";
+    if (pageUrl) {
+      const found = await resolveYouTube(pageUrl, "360");
+      if (found.file) {
+        try {
+          blob = await readMp4(found.file.url, (got, total) => reportSpan(got, total, 0, 1));
+          name = lightName(fileName(found.file.filename, pageUrl));
+        } catch {
+          blob = null;
+        }
+      }
+      if (!blob) {
+        try {
+          const mixed = await downloadMixed(new URL(pageUrl).searchParams.get("v"), 360);
+          blob = mixed.blob;
+          name = lightName(mixed.name);
+        } catch {
+          blob = null;
+        }
+      }
+    }
+    if (!blob || blob.size >= state.blob.size) {
+      hideProgress();
+      const packed = await achicarVideo(video, state.name, (ratio) => {
+        setCopyStatus(`Achicando el video… ${Math.round(ratio * 100)}%`);
+      });
+      blob = packed.blob;
+      name = packed.name;
+    }
+    usarArchivo(blob, name);
+    descargarArchivo(state.url, name);
+    hideProgress();
+    setCopyStatus("Versión liviana lista. Pesa menos y se ve en la galería.", "ok");
+  } catch (error) {
+    hideProgress();
+    setCopyStatus(error.message || "No se pudo armar la versión liviana.", "error");
+  } finally {
+    lightBtn.disabled = false;
+  }
+}
+
+function lightName(name) {
+  return String(name || "video.mp4").replace(/\.mp4$/i, "") + "_liviano.mp4";
+}
+
+function usarArchivo(blob, name) {
+  if (state.url) URL.revokeObjectURL(state.url);
+  state.blob = blob;
+  state.name = name;
+  state.url = URL.createObjectURL(blob);
+  video.src = state.url;
+  fileMeta.textContent = name;
+  updateShareButton();
+  extras.listo();
+}
+
+function descargarArchivo(url, name) {
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = name;
+  document.body.append(link);
+  link.click();
+  link.remove();
+}
+
 function downloadVideo() {
   if (!state.url) return;
   const link = document.createElement("a");
@@ -467,6 +544,7 @@ function videoFile() {
 }
 
 function clearResult() {
+  extras.limpiar();
   if (state.url) URL.revokeObjectURL(state.url);
   state.url = "";
   state.blob = null;

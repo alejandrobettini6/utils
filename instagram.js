@@ -1,4 +1,5 @@
 import { abrir, ejecutar } from "./uso.js";
+import { achicarVideo, conectarGif } from "./descarga-extra.js";
 
 abrir("instagram");
 
@@ -18,12 +19,16 @@ const video = document.querySelector("#video");
 const fileMeta = document.querySelector("#file-meta");
 const shareBtn = document.querySelector("#share");
 const downloadBtn = document.querySelector("#download");
+const lightBtn = document.querySelector("#light");
 const copyStatus = document.querySelector("#copy-status");
+const extras = conectarGif(video, { nombre: () => state.name });
 
 const state = {
   blob: null,
   url: "",
   name: "",
+  pageUrl: "",
+  story: false,
 };
 
 form.addEventListener("submit", (event) => {
@@ -32,6 +37,7 @@ form.addEventListener("submit", (event) => {
 });
 shareBtn.addEventListener("click", shareVideo);
 downloadBtn.addEventListener("click", downloadVideo);
+lightBtn.addEventListener("click", bajarLiviano);
 
 async function downloadFromLink() {
   clearResult();
@@ -93,6 +99,8 @@ async function downloadFromLink() {
 
     state.blob = blob;
     state.name = found.file.filename;
+    state.pageUrl = parsed.url;
+    state.story = parsed.story;
     state.url = URL.createObjectURL(blob);
     video.src = state.url;
     fileMeta.textContent = metaLine(found.file);
@@ -101,6 +109,7 @@ async function downloadFromLink() {
     hideProgress();
     setStatus(readyText(found.file), "ok");
     ejecutar("instagram");
+    extras.listo();
   } finally {
     hideProgress();
     fetchBtn.disabled = false;
@@ -183,7 +192,7 @@ async function askStory(pageUrl) {
   }
 }
 
-async function ask(pageUrl, alwaysProxy) {
+async function ask(pageUrl, alwaysProxy, quality = "720") {
   let sawNetwork = true;
   for (const api of APIS) {
     try {
@@ -196,7 +205,7 @@ async function ask(pageUrl, alwaysProxy) {
         },
         body: JSON.stringify({
           url: pageUrl,
-          videoQuality: "720",
+          videoQuality: quality,
           filenameStyle: "basic",
           downloadMode: "auto",
           ...(alwaysProxy ? { alwaysProxy: true } : {}),
@@ -345,6 +354,68 @@ async function shareVideo() {
   }
 }
 
+async function bajarLiviano() {
+  if (!state.blob || lightBtn.disabled) return;
+  lightBtn.disabled = true;
+  setCopyStatus("Armando una versión liviana…");
+  try {
+    let blob = null;
+    let name = "";
+    if (!state.story && state.pageUrl) {
+      const found = await ask(state.pageUrl, false, "360");
+      if (found.file) {
+        try {
+          blob = await readMp4(found.file.url, (got, total) => reportSpan(got, total));
+          name = lightName(found.file.filename);
+        } catch {
+          blob = null;
+        }
+      }
+    }
+    if (!blob || blob.size >= state.blob.size) {
+      hideProgress();
+      const packed = await achicarVideo(video, state.name, (ratio) => {
+        setCopyStatus(`Achicando el video… ${Math.round(ratio * 100)}%`);
+      });
+      blob = packed.blob;
+      name = packed.name;
+    }
+    usarArchivo(blob, name);
+    descargarArchivo(state.url, name);
+    hideProgress();
+    setCopyStatus("Versión liviana lista. Pesa menos y se ve en la galería.", "ok");
+  } catch (error) {
+    hideProgress();
+    setCopyStatus(error.message || "No se pudo armar la versión liviana.", "error");
+  } finally {
+    lightBtn.disabled = false;
+  }
+}
+
+function lightName(name) {
+  return String(name || "video.mp4").replace(/\.mp4$/i, "") + "_liviano.mp4";
+}
+
+function usarArchivo(blob, name) {
+  if (state.url) URL.revokeObjectURL(state.url);
+  state.blob = blob;
+  state.name = name;
+  state.url = URL.createObjectURL(blob);
+  video.src = state.url;
+  fileMeta.textContent = name;
+  updateShareButton();
+  extras.listo();
+}
+
+function descargarArchivo(url, name) {
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = name;
+  document.body.append(link);
+  link.click();
+  link.remove();
+}
+
 function downloadVideo() {
   if (!state.url) return;
   const link = document.createElement("a");
@@ -361,10 +432,13 @@ function videoFile() {
 }
 
 function clearResult() {
+  extras.limpiar();
   if (state.url) URL.revokeObjectURL(state.url);
   state.url = "";
   state.blob = null;
   state.name = "";
+  state.pageUrl = "";
+  state.story = false;
   video.removeAttribute("src");
   video.load();
   fileMeta.textContent = "";
