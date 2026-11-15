@@ -26,7 +26,7 @@ export const grupos = {
     nombre: "Descargas",
     href: "./descargas.html",
     mark: "Baj",
-    texto: "Bajar un video de Twitter o YouTube.",
+    texto: "Bajar un video de Instagram, Twitter o YouTube.",
   },
   texto: {
     nombre: "Texto y datos",
@@ -96,6 +96,12 @@ export const herramientas = {
     texto: "De un video a un gif para copiar o mandar.",
     href: "./gif.html",
     grupo: "video",
+  },
+  instagram: {
+    nombre: "Instagram",
+    texto: "Pegá el link de un reel, un video o una historia y bajalo.",
+    href: "./instagram.html",
+    grupo: "descargas",
   },
   twitter: {
     nombre: "Twitter",
