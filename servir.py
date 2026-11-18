@@ -5,6 +5,7 @@ import base64
 import json
 import re
 import secrets
+import socket
 import threading
 import time
 import urllib.parse
@@ -292,9 +293,26 @@ def file_name(username, media_id):
     return f"instagram_{safe_user}_{suffix}.mp4"
 
 
+def direcciones():
+    ips = ["127.0.0.1"]
+    try:
+        sonda = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sonda.connect(("8.8.8.8", 80))
+        ip = sonda.getsockname()[0]
+        sonda.close()
+        if ip and ip not in ips:
+            ips.append(ip)
+    except OSError:
+        pass
+    return ips
+
+
 def main():
     server = ThreadingHTTPServer(("0.0.0.0", PORT), Handler)
     print(f"utiles en http://127.0.0.1:{PORT}/", flush=True)
+    for ip in direcciones():
+        if ip != "127.0.0.1":
+            print(f"en el celular: http://{ip}:{PORT}/", flush=True)
     server.serve_forever()
 
 
