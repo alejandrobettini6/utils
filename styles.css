@@ -1486,34 +1486,6 @@ button.mode {
   justify-content: center;
 }
 
-.frase-input {
-  min-height: 5.6rem;
-}
-
-.frase-acciones {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 0.65rem;
-  margin: 0 0 0.85rem;
-}
-
-.frase-acciones .btn {
-  flex: 0 1 auto;
-  width: auto;
-  min-width: 7.2rem;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-}
-
-.micro-ico {
-  width: 1.15rem;
-  height: 1.15rem;
-  display: block;
-}
-
 .btn-icono {
   flex: 0 0 3rem;
   width: 3rem;
@@ -1529,10 +1501,6 @@ button.mode {
   width: 1.35rem;
   height: 1.35rem;
   display: block;
-}
-
-#micro.is-escuchando {
-  background: var(--pink);
 }
 
 #voz {

@@ -30,10 +30,6 @@ const TIMBRES = {
 
 const PALABRAS = { 1: "uno", 2: "dos", 3: "tres" };
 
-let frase;
-let armarBtn;
-let micro;
-let microTexto;
 let statusEl;
 let setup;
 let reloj;
@@ -68,123 +64,6 @@ let pantalla = null;
 let totalSeries = 1;
 let totalReps = 8;
 
-const U = ["cero", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho", "nueve"];
-const DIEZ = ["diez", "once", "doce", "trece", "catorce", "quince", "dieciseis", "diecisiete", "dieciocho", "diecinueve"];
-const DEC = ["", "", "veinte", "treinta", "cuarenta", "cincuenta", "sesenta", "setenta", "ochenta", "noventa"];
-
-function formas(n) {
-  if (n === 0) return ["cero"];
-  if (n === 1) return ["un", "uno", "una"];
-  if (n < 16) return [n < 10 ? U[n] : DIEZ[n - 10]];
-  if (n < 20) return [DIEZ[n - 10]];
-  if (n === 20) return ["veinte"];
-  if (n < 30) {
-    const resto = n - 20;
-    const cortas = resto === 1 ? ["veintiun", "veintiuno"] : [`veinti${U[resto]}`];
-    const largas = resto === 1 ? ["veinte y un", "veinte y uno", "veinte y una"] : [`veinte y ${U[resto]}`];
-    return [...cortas, ...largas];
-  }
-  if (n < 100) {
-    const decena = Math.floor(n / 10);
-    const resto = n % 10;
-    if (resto === 0) return [DEC[decena]];
-    if (resto === 1) return [`${DEC[decena]} y un`, `${DEC[decena]} y uno`, `${DEC[decena]} y una`];
-    return [`${DEC[decena]} y ${U[resto]}`];
-  }
-  if (n === 100) return ["cien", "ciento"];
-  return formas(n - 100).map((forma) => `ciento ${forma}`);
-}
-
-const FRASES = [];
-for (let n = 0; n <= 199; n += 1) {
-  for (const forma of formas(n)) FRASES.push([forma, String(n)]);
-}
-FRASES.sort((a, b) => b[0].length - a[0].length);
-const NUM_RE = new RegExp(`\\b(?:${FRASES.map(([forma]) => forma.replace(/ /g, "\\s+")).join("|")})\\b`, "g");
-const NUM_MAP = new Map(FRASES);
-const TIEMPO = "(?:(\\d+(?:\\.\\d+)?)\\s*(?:minutos?|mins?|min)\\b(?:\\s*(?:y\\s+)?(\\d+(?:\\.\\d+)?)\\s*(?:segundos?|segs?|seg|s)\\b)?|(\\d+(?:\\.\\d+)?)\\s*(?:segundos?|segs?|seg|s)\\b)";
-
-function normalizar(texto) {
-  return texto
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/(\d),(\d)/g, "$1.$2")
-    .replace(/[^a-z0-9.\s]/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-function ponerDigitos(texto) {
-  return texto.replace(NUM_RE, (hallado) => NUM_MAP.get(hallado.replace(/\s+/g, " ")) || hallado);
-}
-
-function aNumero(valor) {
-  const n = Number(valor);
-  return Number.isFinite(n) ? n : 0;
-}
-
-function msDeGrupos(minutos, segundosExtra, soloSegundos) {
-  if (soloSegundos != null && soloSegundos !== "") return Math.round(aNumero(soloSegundos) * 1000);
-  if (minutos == null || minutos === "") return null;
-  return Math.round((aNumero(minutos) * 60 + (segundosExtra ? aNumero(segundosExtra) : 0)) * 1000);
-}
-
-function tiempoDe(texto, etiqueta) {
-  const antes = new RegExp(`${TIEMPO}\\s*(?:de\\s+)?(?:${etiqueta})\\b`, "i").exec(texto);
-  const despues = new RegExp(`(?:${etiqueta})\\s*(?:de\\s+)?${TIEMPO}\\b`, "i").exec(texto);
-  const elegido = !antes ? despues : !despues ? antes : antes.index <= despues.index ? antes : despues;
-  if (!elegido) return null;
-  const ms = msDeGrupos(elegido[1], elegido[2], elegido[3]);
-  return ms == null || ms < 0 ? null : ms;
-}
-
-function cuenta(texto, etiqueta) {
-  const hallado = new RegExp(`(\\d+)\\s*(?:de\\s+)?(?:${etiqueta})\\b`, "i").exec(texto);
-  if (!hallado) return null;
-  const n = Number(hallado[1]);
-  return n >= 1 ? n : null;
-}
-
-export function interpretar(texto) {
-  const limpio = ponerDigitos(normalizar(texto));
-  return {
-    actividad: tiempoDe(limpio, "actividad|ejercicio"),
-    descansoIntervalos: tiempoDe(limpio, "descanso\\s+entre\\s+(?:intervalos?|repeticiones|repeticion)"),
-    repeticiones: cuenta(limpio, "repeticiones|repeticion|reps|rep"),
-    series: cuenta(limpio, "series|serie|vueltas|vuelta"),
-    descansoSeries: tiempoDe(limpio, "descanso\\s+entre\\s+series?"),
-  };
-}
-
-function ponerDuracion(par, ms) {
-  const total = Math.min(180 * 60, Math.max(0, Math.round(ms / 1000)));
-  par[0].value = String(Math.floor(total / 60));
-  par[1].value = String(total % 60);
-}
-
-function aplicarFrase(texto) {
-  const leido = interpretar(texto);
-  const cambios = [
-    leido.actividad != null,
-    leido.descansoIntervalos != null,
-    leido.repeticiones != null,
-    leido.series != null,
-    leido.descansoSeries != null,
-  ].filter(Boolean).length;
-  if (!cambios) {
-    setStatus("No entendí esa frase. Usá tiempos con actividad, descanso entre intervalos, repeticiones, series y descanso entre series.", "error");
-    return;
-  }
-  if (leido.actividad != null) ponerDuracion(campos.actividad, leido.actividad);
-  if (leido.descansoIntervalos != null) ponerDuracion(campos.descanso, leido.descansoIntervalos);
-  if (leido.repeticiones != null) repsEl.value = String(Math.min(99, leido.repeticiones));
-  if (leido.series != null) seriesEl.value = String(Math.min(99, leido.series));
-  if (leido.descansoSeries != null) ponerDuracion(campos.entre, leido.descansoSeries);
-  setStatus(cambios === 5 ? "Listo. Revisá los tiempos antes de empezar." : "Actualicé lo que entendí. El resto quedó como estaba.", "ok");
-  if (!corriendo) pintarQuieto();
-}
-
 function setStatus(texto, tipo) {
   statusEl.hidden = !texto;
   statusEl.textContent = texto;
@@ -200,6 +79,12 @@ function duracion(par) {
   minutos += Math.floor(segundos / 60);
   segundos %= 60;
   return (Math.min(180, minutos) * 60 + segundos) * 1000;
+}
+
+function ponerDuracion(par, ms) {
+  const total = Math.min(180 * 60, Math.max(0, Math.round(ms / 1000)));
+  par[0].value = String(Math.floor(total / 60));
+  par[1].value = String(total % 60);
 }
 
 function leerDuracion(par) {
@@ -564,10 +449,6 @@ function reiniciar() {
 }
 
 function conectar() {
-  frase = document.querySelector("#frase");
-  armarBtn = document.querySelector("#armar");
-  micro = document.querySelector("#micro");
-  microTexto = document.querySelector("#micro-texto");
   statusEl = document.querySelector("#status");
   setup = document.querySelector("#setup");
   reloj = document.querySelector("#reloj");
@@ -591,12 +472,8 @@ function conectar() {
   abrir("intervalos");
   faseEl.setAttribute("aria-live", "polite");
 
-  armarBtn.addEventListener("click", () => aplicarFrase(frase.value));
-  frase.addEventListener("input", (event) => {
-    if (event.inputType === "insertFromPaste") aplicarFrase(frase.value);
-  });
-  setup.addEventListener("input", (event) => {
-    if (event.target === frase || corriendo) return;
+  setup.addEventListener("input", () => {
+    if (corriendo) return;
     pintarQuieto();
   });
 
@@ -632,81 +509,6 @@ function conectar() {
   document.addEventListener("visibilitychange", () => {
     if (document.visibilityState === "visible" && corriendo && !pausado) pedirPantalla();
   });
-
-  const Voz = window.SpeechRecognition || window.webkitSpeechRecognition;
-  function soltarMicrofono() {
-    micro.classList.remove("is-escuchando");
-    micro.setAttribute("aria-pressed", "false");
-    microTexto.textContent = "Audio";
-  }
-  function avisoMicrofono(nombre) {
-    if (!window.isSecureContext) {
-      setStatus("En el celular Chrome no abre el micrófono por WiFi. Escribí la frase y apretá Armar.", "error");
-      return;
-    }
-    if (nombre === "NotAllowedError" || nombre === "not-allowed") {
-      setStatus("Chrome bloqueó el micrófono. Cuando aparezca el aviso, tocá Permitir. Si no aparece, tocá el candado de la barra y activalo.", "error");
-      return;
-    }
-    setStatus("No pude abrir el micrófono. En Chrome, tocá el candado de la barra y elegí Permitir.", "error");
-  }
-  async function pedirMicrofono() {
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      avisoMicrofono(window.isSecureContext ? "missing" : "insecure");
-      return false;
-    }
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      stream.getTracks().forEach((pista) => pista.stop());
-      return true;
-    } catch (error) {
-      avisoMicrofono(error && error.name);
-      return false;
-    }
-  }
-  if (!Voz) {
-    micro.addEventListener("click", () => {
-      avisoMicrofono(window.isSecureContext ? "missing" : "NotAllowedError");
-    });
-  } else {
-    const reconocimiento = new Voz();
-    reconocimiento.lang = "es-AR";
-    reconocimiento.interimResults = false;
-    reconocimiento.maxAlternatives = 1;
-    reconocimiento.onresult = (event) => {
-      const dicho = event.results[0][0].transcript;
-      frase.value = dicho;
-      aplicarFrase(dicho);
-    };
-    reconocimiento.onerror = (event) => {
-      soltarMicrofono();
-      avisoMicrofono(event.error);
-    };
-    reconocimiento.onend = () => {
-      soltarMicrofono();
-    };
-    micro.addEventListener("click", async () => {
-      if (micro.getAttribute("aria-pressed") === "true") {
-        reconocimiento.stop();
-        return;
-      }
-      setStatus("");
-      micro.classList.add("is-escuchando");
-      micro.setAttribute("aria-pressed", "true");
-      microTexto.textContent = "Escuchando";
-      const permitido = await pedirMicrofono();
-      if (!permitido) {
-        soltarMicrofono();
-        return;
-      }
-      try {
-        reconocimiento.start();
-      } catch {
-        soltarMicrofono();
-        avisoMicrofono("not-allowed");
-      }
-    });
-  }
 }
 
 if (typeof document !== "undefined") conectar();
