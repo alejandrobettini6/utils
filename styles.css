@@ -225,6 +225,10 @@ body::before {
   background: var(--teal);
 }
 
+.sticker-gimnasio {
+  background: var(--green);
+}
+
 @media (min-width: 720px) {
   .sticker-live {
     grid-column: auto;
@@ -1382,6 +1386,172 @@ button.mode {
 
 [hidden] {
   display: none !important;
+}
+
+.reloj-setup {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-inline-size: 0;
+}
+
+.tiempos {
+  display: grid;
+  gap: 0.75rem;
+}
+
+@media (min-width: 720px) {
+  .tiempos {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.tiempo {
+  padding: 0.75rem 0.8rem 0.85rem;
+  border: 3px solid var(--ink);
+  border-radius: 16px;
+  background: rgba(255, 253, 248, 0.92);
+  box-shadow: 3px 3px 0 var(--ink);
+}
+
+.tiempo-campos {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.45rem;
+}
+
+.tiempo-campos input[type="number"] {
+  width: 4.4rem;
+  margin: 0;
+}
+
+.tiempo-campos span {
+  font-weight: 800;
+  color: var(--muted);
+}
+
+.reloj {
+  margin-top: 1rem;
+  padding: 1rem 0.85rem 0.95rem;
+  border: 3px solid var(--ink);
+  border-radius: 22px;
+  background: var(--green);
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+
+.reloj[data-fase="descanso"] {
+  background: var(--teal);
+}
+
+.reloj[data-fase="series"] {
+  background: var(--purple);
+}
+
+.reloj[data-fase="listo"] {
+  background: var(--yellow);
+}
+
+.reloj.reloj-cerca {
+  background: var(--yellow);
+}
+
+.reloj.reloj-fin {
+  background: #ff4f8b;
+}
+
+.reloj-fase {
+  margin: 0;
+  font-family: Fredoka, "Trebuchet MS", sans-serif;
+  font-size: 1.35rem;
+}
+
+.reloj-tiempo {
+  margin: 0.1rem 0 0.15rem;
+  font-family: Fredoka, "Trebuchet MS", sans-serif;
+  font-size: clamp(4.2rem, 18vw, 7rem);
+  font-variant-numeric: tabular-nums;
+  line-height: 0.95;
+}
+
+.reloj-avance {
+  margin: 0;
+  font-weight: 800;
+}
+
+.reloj-acciones {
+  margin-top: 0.85rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.frase-input {
+  min-height: 5.6rem;
+}
+
+.frase-acciones {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.65rem;
+  margin: 0 0 0.85rem;
+}
+
+.frase-acciones .btn {
+  flex: 0 1 auto;
+  width: auto;
+  min-width: 7.2rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.micro-ico {
+  width: 1.15rem;
+  height: 1.15rem;
+  display: block;
+}
+
+.btn-icono {
+  flex: 0 0 3rem;
+  width: 3rem;
+  height: 3rem;
+  min-height: 3rem;
+  padding: 0;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+}
+
+.btn-icono svg {
+  width: 1.35rem;
+  height: 1.35rem;
+  display: block;
+}
+
+#micro.is-escuchando {
+  background: var(--pink);
+}
+
+#voz {
+  background: var(--lemon);
+}
+
+#sonido .tache,
+#voz .tache {
+  display: none;
+}
+
+#sonido.is-mudo .ondas,
+#voz.is-mudo .ondas {
+  display: none;
+}
+
+#sonido.is-mudo .tache,
+#voz.is-mudo .tache {
+  display: block;
 }
 
 @media (prefers-reduced-motion: reduce) {

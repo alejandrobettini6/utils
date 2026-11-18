@@ -34,6 +34,12 @@ export const grupos = {
     mark: "Aa",
     texto: "Contar, comparar, CSV, QR y claves.",
   },
+  gimnasio: {
+    nombre: "Gimnasio",
+    href: "./gimnasio.html",
+    mark: "Gym",
+    texto: "Un reloj de intervalos para entrenar.",
+  },
 };
 
 export const herramientas = {
@@ -150,6 +156,12 @@ export const herramientas = {
     texto: "Longitud, peso y temperatura.",
     href: "./unidades.html",
     grupo: "texto",
+  },
+  intervalos: {
+    nombre: "Intervalos",
+    texto: "Actividad, descansos, repeticiones y series.",
+    href: "./intervalos.html",
+    grupo: "gimnasio",
   },
 };
 

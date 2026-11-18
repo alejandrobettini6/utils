@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#fff4d8">
+    <title>Intervalos · utiles</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;700&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <div class="page">
+      <a class="back" href="./gimnasio.html"><span aria-hidden="true">←</span> Gimnasio</a>
+      <header class="tool-head">
+        <h1>Intervalos</h1>
+        <p class="lede">Elegí la actividad, el descanso entre intervalos, las repeticiones, las series y el descanso entre series.</p>
+      </header>
+
+      <fieldset class="reloj-setup" id="setup">
+        <label class="field-top" for="frase">Escribí o dictá la rutina</label>
+        <textarea id="frase" class="text-area frase-input" rows="3" placeholder="40 segundos de actividad, 20 segundos de descanso entre intervalos, 8 repeticiones, 3 series y 1 minuto de descanso entre series"></textarea>
+        <div class="frase-acciones">
+          <button class="btn" id="armar" type="button">Armar</button>
+          <button class="btn btn-teal" id="micro" type="button" aria-pressed="false" aria-label="Mandar la rutina por audio">
+            <svg class="micro-ico" viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"></rect>
+              <path d="M6 11a6 6 0 0 0 12 0" fill="none" stroke="currentColor" stroke-width="2"></path>
+              <path d="M12 17.5v2.5M8.5 21h7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+            </svg>
+            <span id="micro-texto">Audio</span>
+          </button>
+        </div>
+        <p class="status" id="status" role="status" hidden></p>
+
+        <div class="tiempos">
+          <div class="tiempo">
+            <label class="field-top" for="act-min">Actividad</label>
+            <div class="tiempo-campos">
+              <input id="act-min" type="number" min="0" max="180" inputmode="numeric" value="0" autocomplete="off" aria-label="Minutos de actividad">
+              <span>min</span>
+              <input id="act-seg" type="number" min="0" max="59" inputmode="numeric" value="40" autocomplete="off" aria-label="Segundos de actividad">
+              <span>s</span>
+            </div>
+          </div>
+          <div class="tiempo">
+            <label class="field-top" for="desc-min">Descanso entre intervalos</label>
+            <div class="tiempo-campos">
+              <input id="desc-min" type="number" min="0" max="180" inputmode="numeric" value="0" autocomplete="off" aria-label="Minutos de descanso entre intervalos">
+              <span>min</span>
+              <input id="desc-seg" type="number" min="0" max="59" inputmode="numeric" value="20" autocomplete="off" aria-label="Segundos de descanso entre intervalos">
+              <span>s</span>
+            </div>
+          </div>
+          <div class="tiempo">
+            <label class="field-top" for="reps">Repeticiones</label>
+            <div class="tiempo-campos">
+              <input id="reps" type="number" min="1" max="99" inputmode="numeric" value="8" autocomplete="off">
+            </div>
+          </div>
+          <div class="tiempo">
+            <label class="field-top" for="series">Series</label>
+            <div class="tiempo-campos">
+              <input id="series" type="number" min="1" max="99" inputmode="numeric" value="1" autocomplete="off">
+            </div>
+          </div>
+          <div class="tiempo">
+            <label class="field-top" for="entre-min">Descanso entre series</label>
+            <div class="tiempo-campos">
+              <input id="entre-min" type="number" min="0" max="180" inputmode="numeric" value="1" autocomplete="off" aria-label="Minutos de descanso entre series">
+              <span>min</span>
+              <input id="entre-seg" type="number" min="0" max="59" inputmode="numeric" value="0" autocomplete="off" aria-label="Segundos de descanso entre series">
+              <span>s</span>
+            </div>
+          </div>
+        </div>
+      </fieldset>
+
+      <section class="reloj" id="reloj" data-fase="actividad" aria-labelledby="reloj-fase">
+        <p class="reloj-fase" id="reloj-fase">Actividad</p>
+        <p class="reloj-tiempo" id="reloj-tiempo">0:40</p>
+        <p class="reloj-avance" id="reloj-avance">Serie 1 de 1 · Repetición 1 de 8</p>
+        <div class="actions reloj-acciones">
+          <button class="btn btn-primary" id="empezar" type="button">Empezar</button>
+          <button class="btn" id="pausar" type="button" hidden>Pausar</button>
+          <button class="btn" id="seguir" type="button" hidden>Seguir</button>
+          <button class="btn" id="reiniciar" type="button">Reiniciar</button>
+          <button class="btn btn-icono" id="voz" type="button" aria-pressed="false" aria-label="Silenciar la voz">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="currentColor" d="M4 5.2h8.2a2.8 2.8 0 0 1 2.8 2.8v3.6a2.8 2.8 0 0 1-2.8 2.8H8.2L4.4 18v-3.2A2.8 2.8 0 0 1 4 5.2z"></path>
+              <path class="ondas" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M17.4 8a3.4 3.4 0 0 1 0 5.6M19.6 5.8a6.2 6.2 0 0 1 0 10"></path>
+              <path class="tache" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" d="M5 5.2 19 18.8"></path>
+            </svg>
+          </button>
+          <button class="btn btn-icono" id="sonido" type="button" aria-pressed="false" aria-label="Silenciar los tic tac">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="currentColor" d="M4 9.2h3.2L11 5.5v13l-3.8-3.7H4z"></path>
+              <path class="ondas" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M15.2 8.6a4 4 0 0 1 0 6.8M17.7 6.2a7 7 0 0 1 0 11.6"></path>
+              <path class="tache" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" d="M5 5.2 19 18.8"></path>
+            </svg>
+          </button>
+        </div>
+      </section>
+    </div>
+    <script type="module" src="./intervalos.js"></script>
+  </body>
+</html>
